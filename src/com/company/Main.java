@@ -2,19 +2,9 @@ package com.company;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
+import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-/**
- * This is a simple java command line app to experiment and learn about Java Streams!
- * Java 11 is used here even though Streams were introduced in Java 8
- *
- * Key concepts:
- *  - Streams are really good for plumbing and dealing with lots of data! Super convenient to have in the toolbox
- *  - Pipelines consist of a stream souce, then zero or more intermediate ops, then a terminal op
- *  - Short Circuit ops let us do infinite streams in finite time! (It sounds worse than it is)
- */
 
 public class Main {
 
@@ -53,6 +43,57 @@ public class Main {
                 .collect(Collectors.toList());
 
 
+        // This is an infinite stream!
+        Stream<Integer> infiniteStream = Stream.iterate(2, i -> i * 2);
+
+        // WE short circuit it to limit it and skip the first 4 elements!
+        List<Integer> collect = infiniteStream
+                .skip(4)
+                .limit(5)
+                .collect(Collectors.toList());
+
+        System.out.println(collect.toString());
+
+
+        // We can use a comparator to sort, get min and max
+        List<Employee> sortedList = Arrays.stream(empArray)
+                .sorted((e1 , e2) -> e1.compareTo(e2))
+                .collect(Collectors.toList());
+
+        System.out.println(sortedList.get(0).getFirstName());
+
+        // Stream will get unique elements for us! How nice of Stream to do this for us
+        List<Employee> distinctList = Arrays.stream(empArray)
+                .distinct()
+                .collect(Collectors.toList());
+
+        List<Integer> intList = Arrays.asList(2, 4, 5, 6, 8);
+
+        boolean allEven = intList.stream().allMatch(i -> i % 2 == 0);
+        boolean oneEven = intList.stream().anyMatch(i -> i % 2 == 0);
+        boolean noneMultipleOfThree = intList.stream().noneMatch(i -> i % 3 == 0);
+        System.out.println(allEven + " " + oneEven + " " + noneMultipleOfThree);
+
+        Integer maxSalary = Arrays.stream(empArray)
+                .mapToInt(Employee::getSalary)
+                .max()
+                .orElseThrow(NoSuchElementException::new);
+
+        System.out.println("Mas salary is " + maxSalary);
+
+        // Reduction operations can be used to take sequences of input and combine them into 1 result
+        Integer salarySum = Arrays.stream(empArray)
+                .map(Employee::getSalary)
+                .reduce(0, Integer::sum);
+
+        System.out.println("Summed salaries: " + salarySum);
+
+        String names = Arrays.stream(empArray)
+                .map(Employee::getFirstName)
+                .collect(Collectors.joining(", "))
+                .toString();
+
+        System.out.println("Names is " + names);
     }
 
     public static Employee[] setDefaults(){
@@ -65,7 +106,7 @@ public class Main {
     }
 }
 
-class Employee {
+class Employee implements Comparable<Employee>{
 
     private String firstName, lastName;
     private int age, salary;
@@ -94,4 +135,12 @@ class Employee {
     public void setSalary(int salary) { this.salary = salary; }
 
     public void addToSalary(int increment) {this.salary += increment; }
+
+    @Override
+    public int compareTo(Employee o) {
+        if (this.getAge() > o.getAge()){
+            return 1;
+        }
+        return -1;
+    }
 }
