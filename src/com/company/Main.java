@@ -1,6 +1,7 @@
 package com.company;
 
 import java.util.Arrays;
+import java.util.DoubleSummaryStatistics;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
@@ -79,7 +80,7 @@ public class Main {
                 .max()
                 .orElseThrow(NoSuchElementException::new);
 
-        System.out.println("Mas salary is " + maxSalary);
+        System.out.println("Max salary is " + maxSalary);
 
         // Reduction operations can be used to take sequences of input and combine them into 1 result
         Integer salarySum = Arrays.stream(empArray)
@@ -94,6 +95,12 @@ public class Main {
                 .toString();
 
         System.out.println("Names is " + names);
+
+        // here is something special and magical...
+        DoubleSummaryStatistics stats = Arrays.stream(empArray)
+                .collect(Collectors.summarizingDouble(Employee::getSalary));
+
+        System.out.println("The max is: " + stats.getMax() + " sum is: " + stats.getSum() + " so much more info in here!!");
     }
 
     public static Employee[] setDefaults(){
