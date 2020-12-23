@@ -1,9 +1,6 @@
 package com.company;
 
-import java.util.Arrays;
-import java.util.DoubleSummaryStatistics;
-import java.util.List;
-import java.util.NoSuchElementException;
+import java.util.*;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -58,7 +55,7 @@ public class Main {
 
         // We can use a comparator to sort, get min and max
         List<Employee> sortedList = Arrays.stream(empArray)
-                .sorted((e1 , e2) -> e1.compareTo(e2))
+                .sorted((e1, e2) -> e1.compareTo(e2))
                 .collect(Collectors.toList());
 
         System.out.println(sortedList.get(0).getFirstName());
@@ -74,6 +71,8 @@ public class Main {
         boolean oneEven = intList.stream().anyMatch(i -> i % 2 == 0);
         boolean noneMultipleOfThree = intList.stream().noneMatch(i -> i % 3 == 0);
         System.out.println(allEven + " " + oneEven + " " + noneMultipleOfThree);
+
+        empArray = setDefaults();
 
         Integer maxSalary = Arrays.stream(empArray)
                 .mapToInt(Employee::getSalary)
@@ -101,6 +100,32 @@ public class Main {
                 .collect(Collectors.summarizingDouble(Employee::getSalary));
 
         System.out.println("The max is: " + stats.getMax() + " sum is: " + stats.getSum() + " so much more info in here!!");
+
+        List<Employee> empList = Arrays.asList(setDefaults());
+
+        Map<Boolean, List<Employee>> makesAlot = empList.stream().collect(
+                Collectors.partitioningBy(e -> e.getSalary() > 600));
+
+        System.out.println(makesAlot.toString());
+
+        // If we want more than 2 groups we can group by whatever we want!
+        Map<String, List<Employee>> groupByName = empList.stream().collect(Collectors.groupingBy(Employee::getFirstName));
+        System.out.println(groupByName.toString());
+
+        Map<Character, List<Employee>> groupByFirstLetter = empList.stream().collect(Collectors.groupingBy(employee -> employee.getFirstName().charAt(0)));
+        System.out.println(groupByFirstLetter.toString());
+
+        // The above examples grouped items into their own element type, type employee. Here we adapt the collector to a different type
+        // I used the value as a string, just to play around but it could also be a list if there was a duplicate first name
+        Map<String, String> groupByNameIntoName = empList.stream().collect(
+                Collectors.groupingBy(e -> e.getFirstName(), Collectors.mapping(e -> e.getLastName(), Collectors.joining())));
+        System.out.println(groupByNameIntoName.toString());
+
+        // Here's how we can generate valeus on the fly!
+        Stream.generate(Math::random)
+                .limit(3)
+                .forEach(System.out::println);
+
     }
 
     public static Employee[] setDefaults(){
